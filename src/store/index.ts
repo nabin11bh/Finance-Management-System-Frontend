@@ -4,6 +4,7 @@ import { authApi } from "./api/authApi";
 import { categoryApi } from "./api/categoryApi";
 import { incomeApi } from "./api/incomeApi";
 import { expenseApi } from "./api/expenseApi";
+import { dashboardApi } from "./api/dashboardApi";
 
 export const store = configureStore({
   reducer: {
@@ -12,13 +13,15 @@ export const store = configureStore({
     [categoryApi.reducerPath]: categoryApi.reducer,
     [incomeApi.reducerPath]: incomeApi.reducer,
     [expenseApi.reducerPath]: expenseApi.reducer,
+    [dashboardApi.reducerPath]: dashboardApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       authApi.middleware,
       categoryApi.middleware,
       incomeApi.middleware,
-      expenseApi.middleware
+      expenseApi.middleware,
+      dashboardApi.middleware
     ),
 });
 
