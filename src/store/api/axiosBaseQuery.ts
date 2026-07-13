@@ -30,7 +30,7 @@ export const axiosBaseQuery = (): BaseQueryFn<AxiosBaseQueryArgs, unknown, unkno
 
     try {
       const result = await run();
-      return { data: result.data.data ?? result.data };
+      return { data: result.data.data ?? result.data, meta: result.data.meta };
     } catch (error) {
       const axiosError = error as AxiosError<{ error?: { code: string; message: string } }>;
 
@@ -62,7 +62,7 @@ export const axiosBaseQuery = (): BaseQueryFn<AxiosBaseQueryArgs, unknown, unkno
             params,
             headers: retryToken ? { Authorization: `Bearer ${retryToken}` } : undefined,
           });
-          return { data: retryResult.data.data ?? retryResult.data };
+          return { data: retryResult.data.data ?? retryResult.data, meta: retryResult.data.meta };
         } catch (retryError) {
           const retryAxiosError = retryError as AxiosError<{ error?: { code: string; message: string } }>;
           return {
