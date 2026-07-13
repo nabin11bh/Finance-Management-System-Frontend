@@ -3,26 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import type { SerializedError } from "@reduxjs/toolkit";
 import { useLoginMutation } from "@/store/api/authApi";
 import { setCredentials } from "@/store/slices/authSlice";
-
-function getErrorMessage(err: FetchBaseQueryError | SerializedError | unknown): string {
-  if (
-    typeof err === "object" &&
-    err !== null &&
-    "data" in err &&
-    typeof (err as FetchBaseQueryError).data === "object"
-  ) {
-    const data = (err as FetchBaseQueryError).data as { message?: string };
-    return data?.message ?? "Login failed. Please try again.";
-  }
-  if (typeof err === "object" && err !== null && "message" in err) {
-    return (err as SerializedError).message ?? "Login failed. Please try again.";
-  }
-  return "Login failed. Please try again.";
-}
+import { getErrorMessage } from "@/lib/apiError";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,7 +24,7 @@ export default function LoginPage() {
       dispatch(setCredentials({ user: result.user, accessToken: result.accessToken }));
       router.push("/accountant");
     } catch (err) {
-      setError(getErrorMessage(err));
+      setError(getErrorMessage(err, "Login failed. Please try again."));
     }
   }
 
