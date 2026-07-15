@@ -44,6 +44,13 @@ export interface RecentTransaction {
   counterparty: string | null;
 }
 
+export interface UpcomingReminder {
+  id: string;
+  title: string;
+  reminderDate: string;
+  priority: "LOW" | "MEDIUM" | "HIGH";
+}
+
 export const dashboardApi = createApi({
   reducerPath: "dashboardApi",
   baseQuery: axiosBaseQuery(),
@@ -66,6 +73,9 @@ export const dashboardApi = createApi({
     getRecentTransactions: builder.query<RecentTransaction[], void>({
       query: () => ({ url: "/dashboard/recent-transactions", method: "GET" }),
     }),
+    getUpcomingReminders: builder.query<UpcomingReminder[], void>({
+      query: () => ({ url: "/dashboard/upcoming-reminders", method: "GET" }),
+    }),
   }),
 });
 
@@ -76,4 +86,5 @@ export const {
   useGetExpenseByCategoryQuery,
   useGetMonthlyCashFlowQuery,
   useGetRecentTransactionsQuery,
+  useGetUpcomingRemindersQuery
 } = dashboardApi;

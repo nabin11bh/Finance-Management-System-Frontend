@@ -11,6 +11,7 @@ import IncomeExpenseChart from "./dashboard/IncomeExpenseChart";
 import CategoryPieChart from "./dashboard/CategoryPieChart";
 import MonthlyCashFlowChart from "./dashboard/MonthlyCashFlowChart";
 import RecentTransactions from "./dashboard/RecentTransactions";
+import UpcomingReminders from "./dashboard/UpcomingReminders";
 import { useGetIncomeByCategoryQuery, useGetExpenseByCategoryQuery } from "@/store/api/dashboardApi";
 
 export default function AccountantHome() {
@@ -45,6 +46,12 @@ export default function AccountantHome() {
           <Link href="/accountant/categories" className="text-sm font-medium text-brand hover:underline">
             Categories
           </Link>
+          <Link href="/accountant/notes" className="text-sm font-medium text-brand hover:underline">
+            Notes
+          </Link>
+          <Link href="/accountant/reminders" className="text-sm font-medium text-brand hover:underline">
+            Reminders
+          </Link>
           <button
             onClick={handleLogout}
             className="text-sm font-medium text-red-600 hover:text-red-700 border border-red-200 rounded-md px-4 py-2"
@@ -66,6 +73,7 @@ export default function AccountantHome() {
       <MonthlyCashFlowChart />
 
       <RecentTransactions />
+      <UpcomingReminders />
     </div>
   );
 }
