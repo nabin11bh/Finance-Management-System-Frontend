@@ -5,6 +5,8 @@ import { categoryApi } from "./api/categoryApi";
 import { incomeApi } from "./api/incomeApi";
 import { expenseApi } from "./api/expenseApi";
 import { dashboardApi } from "./api/dashboardApi";
+import { noteApi } from "./api/noteApi";
+import { reminderApi } from "./api/reminderApi";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +16,8 @@ export const store = configureStore({
     [incomeApi.reducerPath]: incomeApi.reducer,
     [expenseApi.reducerPath]: expenseApi.reducer,
     [dashboardApi.reducerPath]: dashboardApi.reducer,
+    [noteApi.reducerPath]: noteApi.reducer,
+    [reminderApi.reducerPath]: reminderApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -21,7 +25,9 @@ export const store = configureStore({
       categoryApi.middleware,
       incomeApi.middleware,
       expenseApi.middleware,
-      dashboardApi.middleware
+      dashboardApi.middleware,
+      noteApi.middleware,
+      reminderApi.middleware
     ),
 });
 
