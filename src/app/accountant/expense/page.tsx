@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, Fragment } from "react";
 import Link from "next/link";
 import { useListExpenseQuery, useDeleteExpenseMutation } from "@/store/api/expenseApi";
+import AttachmentManager from "@/components/AttachmentManager";
 
 function formatNPR(amount: string) {
   return `Rs. ${Number(amount).toLocaleString("en-NP", { minimumFractionDigits: 2 })}`;
@@ -10,6 +12,7 @@ function formatNPR(amount: string) {
 export default function ExpenseListPage() {
   const { data, isLoading } = useListExpenseQuery();
   const [deleteExpense] = useDeleteExpenseMutation();
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this expense record?")) return;
@@ -45,23 +48,38 @@ export default function ExpenseListPage() {
             </thead>
             <tbody>
               {data?.records.map((expense) => (
-                <tr key={expense.id} className="border-t border-slate-100">
-                  <td className="px-4 py-3">{new Date(expense.expenseDate).toLocaleDateString()}</td>
-                  <td className="px-4 py-3">
-                    {expense.category.groupName} / {expense.category.name}
-                  </td>
-                  <td className="px-4 py-3">{expense.vendorName ?? "—"}</td>
-                  <td className="px-4 py-3">{expense.paymentMethod}</td>
-                  <td className="px-4 py-3 text-right font-medium text-red-700">{formatNPR(expense.amount)}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => handleDelete(expense.id)}
-                      className="text-red-600 hover:underline text-xs"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
+                <Fragment key={expense.id}>
+                  <tr className="border-t border-slate-100">
+                    <td className="px-4 py-3">{new Date(expense.expenseDate).toLocaleDateString()}</td>
+                    <td className="px-4 py-3">
+                      {expense.category.groupName} / {expense.category.name}
+                    </td>
+                    <td className="px-4 py-3">{expense.vendorName ?? "—"}</td>
+                    <td className="px-4 py-3">{expense.paymentMethod}</td>
+                    <td className="px-4 py-3 text-right font-medium text-red-700">{formatNPR(expense.amount)}</td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => setExpandedId(expandedId === expense.id ? null : expense.id)}
+                        className="text-brand hover:underline text-xs mr-3"
+                      >
+                        {expandedId === expense.id ? "Hide" : "Attachments"}
+                      </button>
+                      <button
+                        onClick={() => handleDelete(expense.id)}
+                        className="text-red-600 hover:underline text-xs"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                  {expandedId === expense.id && (
+                    <tr>
+                      <td colSpan={6} className="px-4 pb-3 bg-slate-50">
+                        <AttachmentManager entityType="expense" entityId={expense.id} />
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))}
               {data?.records.length === 0 && (
                 <tr>

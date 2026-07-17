@@ -52,6 +52,9 @@ export default function AccountantHome() {
           <Link href="/accountant/reminders" className="text-sm font-medium text-brand hover:underline">
             Reminders
           </Link>
+          <Link href="/accountant/reports" className="text-sm font-medium text-brand hover:underline">
+            Reports
+          </Link>
           <button
             onClick={handleLogout}
             className="text-sm font-medium text-red-600 hover:text-red-700 border border-red-200 rounded-md px-4 py-2"

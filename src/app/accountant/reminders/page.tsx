@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useListRemindersQuery, useCreateReminderMutation, useMarkCompleteMutation, useDeleteReminderMutation } from "@/store/api/reminderApi";
 import { getErrorMessage } from "@/lib/apiError";
+import AttachmentManager from "@/components/AttachmentManager";
 
 const PRIORITIES = ["LOW", "MEDIUM", "HIGH"] as const;
 
@@ -30,7 +31,7 @@ export default function RemindersPage() {
     }
   }
 
-  const priorityColor = { LOW: "text-slate-500", MEDIUM: "text-amber-600", HIGH: "text-red-600" };
+  const priorityColor: Record<string, string> = { LOW: "text-slate-500", MEDIUM: "text-amber-600", HIGH: "text-red-600" };
 
   return (
     <div className="p-8 max-w-3xl">
@@ -61,7 +62,7 @@ export default function RemindersPage() {
           <label className="block text-xs font-medium text-slate-700 mb-1">Priority</label>
           <select
             value={form.priority}
-          onChange={(e) => setForm({ ...form, priority: e.target.value as (typeof PRIORITIES)[number] })}
+            onChange={(e) => setForm({ ...form, priority: e.target.value as (typeof PRIORITIES)[number] })}
             className="rounded-md border border-slate-300 px-3 py-2 text-sm"
           >
             {PRIORITIES.map((p) => (
@@ -84,26 +85,29 @@ export default function RemindersPage() {
       ) : (
         <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100">
           {data?.records.map((reminder) => (
-            <div key={reminder.id} className="flex items-center justify-between px-4 py-3">
-              <div>
-                <p className={`text-sm font-medium ${reminder.status === "COMPLETED" ? "line-through text-slate-400" : "text-slate-900"}`}>
-                  {reminder.title}
-                </p>
-                <p className="text-xs text-slate-500">
-                  {new Date(reminder.reminderDate).toLocaleDateString()} ·{" "}
-                  <span className={priorityColor[reminder.priority]}>{reminder.priority}</span>
-                </p>
-              </div>
-              <div className="flex gap-2">
-                {reminder.status === "PENDING" && (
-                  <button onClick={() => markComplete(reminder.id)} className="text-xs text-green-700 hover:underline">
-                    Complete
+            <div key={reminder.id} className="px-4 py-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm font-medium ${reminder.status === "COMPLETED" ? "line-through text-slate-400" : "text-slate-900"}`}>
+                    {reminder.title}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {new Date(reminder.reminderDate).toLocaleDateString()} ·{" "}
+                    <span className={priorityColor[reminder.priority]}>{reminder.priority}</span>
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  {reminder.status === "PENDING" && (
+                    <button onClick={() => markComplete(reminder.id)} className="text-xs text-green-700 hover:underline">
+                      Complete
+                    </button>
+                  )}
+                  <button onClick={() => deleteReminder(reminder.id)} className="text-xs text-red-600 hover:underline">
+                    Delete
                   </button>
-                )}
-                <button onClick={() => deleteReminder(reminder.id)} className="text-xs text-red-600 hover:underline">
-                  Delete
-                </button>
+                </div>
               </div>
+              <AttachmentManager entityType="reminder" entityId={reminder.id} />
             </div>
           ))}
           {data?.records.length === 0 && (

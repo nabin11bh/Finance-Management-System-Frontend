@@ -20,8 +20,8 @@ export default function CategoriesPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {incomeCategories?.map((cat) => (
               <div key={cat.id} className="bg-white border border-slate-200 rounded-lg p-3">
-                <p className="text-sm font-medium text-slate-900">{cat.name}</p>
-                <p className="text-xs text-slate-500 mt-1">{cat.description}</p>
+                <p className="text-sm uppercase tracking-wide text-brand font font-semibold">{cat.name}</p>
+                <p className="text-sm font font-medium text-slate-500 mt-1">{cat.description}</p>
               </div>
             ))}
           </div>
@@ -39,7 +39,7 @@ export default function CategoriesPage() {
             {expenseCategories?.map((cat) => (
               <div key={cat.id} className="bg-white border border-slate-200 rounded-lg p-3">
                 <p className="text-xs uppercase tracking-wide text-brand font-semibold">{cat.groupName}</p>
-                <p className="text-sm font-medium text-slate-900">{cat.name}</p>
+                <p className="text-sm font-medium text-slate-500">{cat.name}</p>
               </div>
             ))}
           </div>

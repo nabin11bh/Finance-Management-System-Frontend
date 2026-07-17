@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, Fragment } from "react";
 import Link from "next/link";
 import { useListIncomeQuery, useDeleteIncomeMutation } from "@/store/api/incomeApi";
+import AttachmentManager from "@/components/AttachmentManager";
 
 function formatNPR(amount: string) {
   return `Rs. ${Number(amount).toLocaleString("en-NP", { minimumFractionDigits: 2 })}`;
@@ -10,6 +12,7 @@ function formatNPR(amount: string) {
 export default function IncomeListPage() {
   const { data, isLoading } = useListIncomeQuery();
   const [deleteIncome] = useDeleteIncomeMutation();
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this income record?")) return;
@@ -45,21 +48,36 @@ export default function IncomeListPage() {
             </thead>
             <tbody>
               {data?.records.map((income) => (
-                <tr key={income.id} className="border-t border-slate-100">
-                  <td className="px-4 py-3">{new Date(income.transactionDate).toLocaleDateString()}</td>
-                  <td className="px-4 py-3">{income.category.name}</td>
-                  <td className="px-4 py-3">{income.clientName ?? "—"}</td>
-                  <td className="px-4 py-3">{income.paymentMethod}</td>
-                  <td className="px-4 py-3 text-right font-medium text-green-700">{formatNPR(income.amount)}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => handleDelete(income.id)}
-                      className="text-red-600 hover:underline text-xs"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
+                <Fragment key={income.id}>
+                  <tr className="border-t border-slate-100">
+                    <td className="px-4 py-3">{new Date(income.transactionDate).toLocaleDateString()}</td>
+                    <td className="px-4 py-3">{income.category.name}</td>
+                    <td className="px-4 py-3">{income.clientName ?? "—"}</td>
+                    <td className="px-4 py-3">{income.paymentMethod}</td>
+                    <td className="px-4 py-3 text-right font-medium text-green-700">{formatNPR(income.amount)}</td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => setExpandedId(expandedId === income.id ? null : income.id)}
+                        className="text-brand hover:underline text-xs mr-3"
+                      >
+                        {expandedId === income.id ? "Hide" : "Attachments"}
+                      </button>
+                      <button
+                        onClick={() => handleDelete(income.id)}
+                        className="text-red-600 hover:underline text-xs"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                  {expandedId === income.id && (
+                    <tr>
+                      <td colSpan={6} className="px-4 pb-3 bg-slate-50">
+                        <AttachmentManager entityType="income" entityId={income.id} />
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))}
               {data?.records.length === 0 && (
                 <tr>
