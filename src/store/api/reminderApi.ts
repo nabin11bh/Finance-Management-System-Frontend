@@ -22,13 +22,19 @@ interface ListReminderResponse {
   meta: { page: number; limit: number; total: number; totalPages: number };
 }
 
+interface ListReminderParams {
+  page?: number;
+  status?: "PENDING" | "COMPLETED";
+  priority?: "LOW" | "MEDIUM" | "HIGH";
+}
+
 export const reminderApi = createApi({
   reducerPath: "reminderApi",
   baseQuery: axiosBaseQuery(),
   tagTypes: ["Reminder"],
   endpoints: (builder) => ({
-    listReminders: builder.query<ListReminderResponse, void>({
-      query: () => ({ url: "/reminders", method: "GET" }),
+    listReminders: builder.query<ListReminderResponse, ListReminderParams | void>({
+      query: (params) => ({ url: "/reminders", method: "GET", params: params ?? {} }),
       providesTags: ["Reminder"],
     }),
     createReminder: builder.mutation<Reminder, CreateReminderInput>({
@@ -46,4 +52,9 @@ export const reminderApi = createApi({
   }),
 });
 
-export const { useListRemindersQuery, useCreateReminderMutation, useMarkCompleteMutation, useDeleteReminderMutation } = reminderApi;
+export const {
+  useListRemindersQuery,
+  useCreateReminderMutation,
+  useMarkCompleteMutation,
+  useDeleteReminderMutation,
+} = reminderApi;

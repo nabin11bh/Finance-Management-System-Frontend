@@ -6,9 +6,18 @@ import { getErrorMessage } from "@/lib/apiError";
 import AttachmentManager from "@/components/AttachmentManager";
 
 const PRIORITIES = ["LOW", "MEDIUM", "HIGH"] as const;
+const STATUSES = ["PENDING", "COMPLETED"] as const;
 
 export default function RemindersPage() {
-  const { data, isLoading } = useListRemindersQuery();
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [priorityFilter, setPriorityFilter] = useState<string>("");
+  const [page, setPage] = useState(1);
+
+  const { data, isLoading } = useListRemindersQuery({
+    page,
+    status: (statusFilter || undefined) as "PENDING" | "COMPLETED" | undefined,
+    priority: (priorityFilter || undefined) as "LOW" | "MEDIUM" | "HIGH" | undefined,
+  });
   const [createReminder, { isLoading: isCreating }] = useCreateReminderMutation();
   const [markComplete] = useMarkCompleteMutation();
   const [deleteReminder] = useDeleteReminderMutation();
@@ -37,7 +46,7 @@ export default function RemindersPage() {
     <div className="p-8 max-w-3xl">
       <h1 className="text-2xl font-semibold text-slate-900 mb-6">Reminders</h1>
 
-      <form onSubmit={handleCreate} className="bg-white border border-slate-200 rounded-xl p-4 mb-6 flex gap-3 items-end flex-wrap">
+      <form onSubmit={handleCreate} className="bg-white border border-slate-200 rounded-xl p-4 mb-4 flex gap-3 items-end flex-wrap">
         <div className="flex-1 min-w-[160px]">
           <label className="block text-xs font-medium text-slate-700 mb-1">Title</label>
           <input
@@ -80,40 +89,93 @@ export default function RemindersPage() {
       </form>
       {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
 
+      <div className="flex items-center gap-3 mb-4">
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(1);
+          }}
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+        >
+          <option value="">All statuses</option>
+          {STATUSES.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+        <select
+          value={priorityFilter}
+          onChange={(e) => {
+            setPriorityFilter(e.target.value);
+            setPage(1);
+          }}
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+        >
+          <option value="">All priorities</option>
+          {PRIORITIES.map((p) => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
+      </div>
+
       {isLoading ? (
         <p className="text-sm text-slate-500">Loading…</p>
       ) : (
-        <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100">
-          {data?.records.map((reminder) => (
-            <div key={reminder.id} className="px-4 py-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm font-medium ${reminder.status === "COMPLETED" ? "line-through text-slate-400" : "text-slate-900"}`}>
-                    {reminder.title}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {new Date(reminder.reminderDate).toLocaleDateString()} ·{" "}
-                    <span className={priorityColor[reminder.priority]}>{reminder.priority}</span>
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  {reminder.status === "PENDING" && (
-                    <button onClick={() => markComplete(reminder.id)} className="text-xs text-green-700 hover:underline">
-                      Complete
+        <>
+          <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100">
+            {data?.records.map((reminder) => (
+              <div key={reminder.id} className="px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className={`text-sm font-medium ${reminder.status === "COMPLETED" ? "line-through text-slate-400" : "text-slate-900"}`}>
+                      {reminder.title}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {new Date(reminder.reminderDate).toLocaleDateString()} ·{" "}
+                      <span className={priorityColor[reminder.priority]}>{reminder.priority}</span>
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    {reminder.status === "PENDING" && (
+                      <button onClick={() => markComplete(reminder.id)} className="text-xs text-green-700 hover:underline">
+                        Complete
+                      </button>
+                    )}
+                    <button onClick={() => deleteReminder(reminder.id)} className="text-xs text-red-600 hover:underline">
+                      Delete
                     </button>
-                  )}
-                  <button onClick={() => deleteReminder(reminder.id)} className="text-xs text-red-600 hover:underline">
-                    Delete
-                  </button>
+                  </div>
                 </div>
+                <AttachmentManager entityType="reminder" entityId={reminder.id} />
               </div>
-              <AttachmentManager entityType="reminder" entityId={reminder.id} />
+            ))}
+            {data?.records.length === 0 && (
+              <p className="text-sm text-slate-400 px-4 py-8 text-center">No reminders match your filters.</p>
+            )}
+          </div>
+
+          {data && data.meta.totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4 text-sm">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-3 py-1.5 border border-slate-300 rounded-md disabled:opacity-40"
+              >
+                Previous
+              </button>
+              <span className="text-slate-500">
+                Page {data.meta.page} of {data.meta.totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(data.meta.totalPages, p + 1))}
+                disabled={page === data.meta.totalPages}
+                className="px-3 py-1.5 border border-slate-300 rounded-md disabled:opacity-40"
+              >
+                Next
+              </button>
             </div>
-          ))}
-          {data?.records.length === 0 && (
-            <p className="text-sm text-slate-400 px-4 py-8 text-center">No reminders yet.</p>
           )}
-        </div>
+        </>
       )}
     </div>
   );

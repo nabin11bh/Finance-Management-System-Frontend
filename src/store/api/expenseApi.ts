@@ -27,6 +27,11 @@ interface ListExpenseParams {
   page?: number;
   limit?: number;
   search?: string;
+  vendor_name?: string;
+  from?: string;
+  to?: string;
+  category_id?: string;
+  payment_method?: string;
 }
 
 interface ListExpenseResponse {

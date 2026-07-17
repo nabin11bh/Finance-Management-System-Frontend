@@ -22,13 +22,20 @@ interface ListNoteResponse {
   meta: { page: number; limit: number; total: number; totalPages: number };
 }
 
+interface ListNoteParams {
+  page?: number;
+  search?: string;
+  is_pinned?: boolean;
+  is_archived?: boolean;
+}
+
 export const noteApi = createApi({
   reducerPath: "noteApi",
   baseQuery: axiosBaseQuery(),
   tagTypes: ["Note"],
   endpoints: (builder) => ({
-    listNotes: builder.query<ListNoteResponse, void>({
-      query: () => ({ url: "/notes", method: "GET" }),
+    listNotes: builder.query<ListNoteResponse, ListNoteParams | void>({
+      query: (params) => ({ url: "/notes", method: "GET", params: params ?? {} }),
       providesTags: ["Note"],
     }),
     createNote: builder.mutation<Note, CreateNoteInput>({
@@ -46,4 +53,9 @@ export const noteApi = createApi({
   }),
 });
 
-export const { useListNotesQuery, useCreateNoteMutation, useTogglePinMutation, useDeleteNoteMutation } = noteApi;
+export const {
+  useListNotesQuery,
+  useCreateNoteMutation,
+  useTogglePinMutation,
+  useDeleteNoteMutation,
+} = noteApi;
